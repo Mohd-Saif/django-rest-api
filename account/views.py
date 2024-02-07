@@ -2,13 +2,15 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import (UserRegistrationSerializer, LoginSerializer, UserProfileSerializer,
-                          ChangePasswordSerializer, SendPasswordResendSerializer, UserPasswordResetSerializer)
+from .serializers import (SendPasswordResetEmailSerializer, UserRegistrationSerializer, LoginSerializer, UserProfileSerializer,
+                          ChangePasswordSerializer, UserPasswordResetSerializer)
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from .models import  User
+
 
 # Create your views here.
 # Generate Token manually
@@ -98,17 +100,19 @@ class ChangePasswordView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class SendPasswordResendView(APIView):
+
+
+class SendPasswordResetEmailView(APIView):
     def post(self,request,format=None):
-        serializer=SendPasswordResendSerializer(data=request.data)
+        serializer=SendPasswordResetEmailSerializer(data=request.data)
         if serializer.is_valid():
+            print("jsdbjsbdbjdb")
             return Response({"msg":'Password Reset link send Please check you Email'},status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserPasswordResetView(APIView):
     def post(self,request,uid,token):
-        serializer=UserPasswordResetSerializer(data=request.data)
-        context={'uid':uid,'token':token}
+        serializer=UserPasswordResetSerializer(data=request.data, context={'uid':uid, 'token':token})
         if serializer.is_valid():
             return Response({"msg":'password Reset Successfully'},status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
